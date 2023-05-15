@@ -165,6 +165,12 @@ def main():
     if args.search is None and args.inputwordfile is None:
         parser.error("argument --search/-s is required with --input-words/-iw")
 
+    if args.inputwordfile is not None:
+        import os
+        # Check if the file exists
+        if not os.path.exists(args.inputwordfile):
+            parser.error(f"file {args.inputwordfile} does not exist")
+
     videogrep(
         files=args.inputfile,
         query=args.search,
