@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "videogrep"
+version = "2.1.2"
+description = "Videogrep is a command line tool that searches through dialog in video files and makes supercuts based on what it finds. Like grep but for video."
+authors = ["Sam Lavigne <splavigne@gmail.com>"]
+license = "Anti-Capitalist"
+readme = "README.md"
+homepage = "http://antiboredom.github.io/videogrep/"
+repository = "https://github.com/antiboredom/videogrep"
+keywords = ["video", "supercut"]
+classifiers = [
+  "Topic :: Multimedia :: Video",
+  "Topic :: Multimedia :: Sound/Audio :: Speech",
+  "Topic :: Text Processing",
+  "Topic :: Utilities"
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+beautifulsoup4 = "^4.11.1"
+moviepy = "^1.0.3"
+vosk = {version = "0.3.32", optional = true}
+
+[tool.poetry.extras]
+full = ["vosk"]
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+tox = "^3.25.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+videogrep = "videogrep.cli:main"

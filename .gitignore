@@ -1,0 +1,14 @@
+env
+env2
+venv/
+.venv/
+*.mp4
+!tests/manifesto.mp4
+*.pyc
+__pycache__
+build
+dist
+*.DS_Store
+*.egg-info
+.tox
+.python-version
