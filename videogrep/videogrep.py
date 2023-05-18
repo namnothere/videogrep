@@ -245,15 +245,16 @@ def search(
 
     if not isinstance(query, list):
         if not isinstance(query, str):
-            query = list()
+            query: List[str] = list()
         else:
             query = [query]
 
+
     all_segments = []
+    word_content = []
     if word_file:
         word_content = open(word_file, "r", encoding="utf8").read().splitlines()
         
-
     for file in files:
         segments = []
         transcript = parse_transcript(file, prefer=prefer)
@@ -263,7 +264,7 @@ def search(
         if search_type == "sentence":
             for idx, line in enumerate(transcript):
                 for _query in query:
-                    if re.search(_query, line["content"]):
+                    if re.search(_query.lower().strip(), line["content"]):
                         segments.append(
                             {
                                 "file": file,
@@ -553,8 +554,8 @@ def videogrep(
     random_order: bool = False,
     demo: bool = False,
     pause: float = 0,
-    word_file: str = "",
-    context_aware: bool = False
+    word_file: str = None,
+    context_aware: bool = True
 ):
     """
     Creates a supercut of videos based on a search query
@@ -579,7 +580,7 @@ def videogrep(
     if len(segments) == 0:
         if isinstance(query, list):
             query = " ".join(query)
-        print("No results found for", query)
+        print("No results found for", query if query else f"input file {word_file}")
         return False
 
 

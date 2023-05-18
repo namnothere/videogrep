@@ -12,3 +12,4 @@ dist
 *.egg-info
 .tox
 .python-version
+test/
