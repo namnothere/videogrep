@@ -188,25 +188,22 @@ def content_aware_segments(segments: List[dict], transcript: List[dict], file: s
 
     # Check if transcript[idx - 1]["start"] exist in any of the segments
     if not any([s["start"] == transcript[idx - 1]["start"] for s in segments]):
+        insert_idx = idx
         if idx == 0:
-            segments.insert(
-                0,
-                {
-                    "file": file,
-                    "start": transcript[idx]["start"],
-                    "end": transcript[idx]["end"],
-                    "content": transcript[idx]["content"],
-                }
-            )
+            insert_idx = 0
         else:
-            segments.insert(
-                idx - 1,
-                {
-                    "file": file,
-                    "start": transcript[idx - 1]["start"],
-                    "end": transcript[idx - 1]["end"],
-                    "content": transcript[idx - 1]["content"],
-                }
+            insert_idx = idx - 1
+        
+        segments.insert(
+            insert_idx,
+            {
+                "file": file,
+                "start": transcript[idx]["start"],
+                "end": transcript[idx]["end"],
+                "content": transcript[idx]["content"],
+                "content_aware": True,
+                "position": "before",
+            }
         )
 
     if not any([s["start"] == transcript[idx + 1]["start"] for s in segments]):
@@ -217,6 +214,8 @@ def content_aware_segments(segments: List[dict], transcript: List[dict], file: s
                 "start": transcript[idx + 1]["start"],
                 "end": transcript[idx + 1]["end"],
                 "content": transcript[idx + 1]["content"],
+                "content_aware": True,
+                "position": "after",
             }
         )
     return segments
@@ -386,6 +385,11 @@ def create_supercut(composition: List[dict], outputfile: str, pause: float = 0):
         if c["end"] > videofileclips[c["file"]].duration:
             c["end"] = videofileclips[c["file"]].duration
         cut_clips.append(videofileclips[c["file"]].subclip(c["start"], c["end"]))
+
+        if "content_aware" in c and c["position"] == "before":
+            continue
+        elif composition.index(c) == len(composition) - 1:
+            continue # skip pause at the end
         cut_clips.append(empty_clip)
 
 
@@ -555,7 +559,8 @@ def videogrep(
     demo: bool = False,
     pause: float = 0,
     word_file: str = None,
-    context_aware: bool = True
+    context_aware: bool = True,
+    transcript_type: str = None,
 ):
     """
     Creates a supercut of videos based on a search query
@@ -575,7 +580,7 @@ def videogrep(
     :param context_aware bool: Include sentences surrounding the query
     """
 
-    segments = search(files=files, query=query, search_type=search_type, word_file=word_file, context_aware=context_aware)
+    segments = search(files=files, query=query, search_type=search_type, word_file=word_file, context_aware=context_aware, prefer=transcript_type)
 
     if len(segments) == 0:
         if isinstance(query, list):

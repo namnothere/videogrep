@@ -50,8 +50,6 @@ def main():
         "--output",
         "-o",
         dest="outputfile",
-        # default="supercut.mp4",
-        default="supercut.mp4",
         help="name of output file",
     )
     parser.add_argument(
@@ -115,6 +113,13 @@ def main():
         default=True,
         action="store_true",
         help="transcribe the video using vosk (built in)",
+    )
+    parser.add_argument(
+        "--transcript-type",
+        "-tt",
+        dest="transcript_type",
+        default=None,
+        choices=["json", "srt", "vtt", "transcript"],
     )
     parser.add_argument(
         "--model",
@@ -209,13 +214,21 @@ def main():
         except:
             pass
 
+    transcript_type = ["json", "srt", "vtt", "transcript"]
+
     for f in args.inputfile:
+        if not args.outputfile:
+            args.outputfile = os.path.join(str(args.outfolder), "output_" + f)
+
+        # If the input file doesn't have transcripts, create one
+        if not any(f.endswith(ext) for ext in transcript_type):
+            transcribe.transcribe(f, args.model)
+
         videogrep(
             files=f,
             query=args.search,
             search_type=args.searchtype,
-            # output=args.outputfile,
-            output=os.path.join(str(args.outfolder), "output_" + f),
+            output=args.outputfile,
             maxclips=args.maxclips,
             padding=args.padding,
             demo=args.demo,
@@ -224,8 +237,11 @@ def main():
             export_clips=args.export_clips,
             pause=args.pause,
             word_file=args.inputwordfile,
-            context_aware=args.context_aware
+            context_aware=args.context_aware,
+            transcript_type=args.transcript_type,
         )
+
+        args.outputfile = None
 
     if args.merge:
         if not args.outputfile:
